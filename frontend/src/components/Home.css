@@ -1,40 +1,100 @@
-/* Home.css */
-.home {
-    padding: 20px;
+/* Home.css
+
+.home-container {
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.product-card {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    text-align: center;
-    transition: box-shadow 0.3s;
+.tab-button {
+  padding: 10px 20px;
+  background-color: #e6e6e6;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
 }
 
-.product-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.tab-button.active,
+.tab-button:hover {
+  background-color: #007bff;
+  color: #fff;
 }
 
-.product-image {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 10px;
+/* Section Headings */
+h1, h2 {
+  color: #333;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-.product-name {
-    font-size: 16px;
-    font-weight: bold;
+/* Section Divider */
+.section-divider {
+  margin: 40px 0;
+  border: none;
+  border-top: 2px solid #ddd;
 }
 
-.product-brand,
-.product-rating,
-.product-reviews {
-    font-size: 14px;
-    color: #555;
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #222;
+  color: white;
+  margin-top: 50px;
+  border-radius: 10px;
+} */
+
+.home-container {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.section-divider {
+  border: none;
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 2rem 0;
+}
+
+/* Smooth transitions for tab content */
+.tab-content {
+  transition: opacity 0.3s ease;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tab-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .tab-buttons button {
+    width: 100%;
+  }
 }

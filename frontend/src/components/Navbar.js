@@ -2,16 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Navbar.css";
+import homeIcon from "../images/home.png";  
+import cartIcon from "../images/cart.png"; 
 
 const Navbar = () => {
   const [productName, setProductName] = useState("");
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || "");
   const [brands, setBrands] = useState([]);
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch Brands Using Axios
   useEffect(() => {
     axios.get("http://localhost:5000/brands")
       .then((response) => {
@@ -20,18 +20,18 @@ const Navbar = () => {
       .catch((error) => console.error("Error fetching brands:", error.message));
   }, []);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev);
-  };
+  const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
 
   const handleBrandClick = (brand) => {
     navigate(`/products?brand=${encodeURIComponent(brand)}`);
-    setIsDropdownOpen(false); // Close dropdown after selection
+    setIsDropdownOpen(false);
   };
 
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    e.preventDefault();
     if (productName.trim()) {
       navigate(`/search?query=${encodeURIComponent(productName)}`);
+      setProductName("");
     }
   };
 
@@ -51,65 +51,90 @@ const Navbar = () => {
 
   const { initial, displayName } = getEmailDetails(userEmail);
 
-  // Fetch Products by Brand
-  {/*
-  const handleBrandClick = (brand) => {
-    navigate(`/products?brand=${encodeURIComponent(brand)}`);
-  };*/}
-
   return (
-    <div>
+    <header className="navbar-container">
       <nav className="navbar">
-        <div className="navbar-brand">
-          <a href="/">Home</a>
-        </div>
+        <div className="navbar-left">
+          <a href="/" className="home-link">
+            <img src={homeIcon} alt="Home" className="nav-icon" />
+            <span className="logo-text">ShopEase</span>
+          </a>
 
-        {/* Brand Dropdown Menu */}
-        <div className="brand-dropdown">
-        <button className="brand-button" onClick={toggleDropdown}>
-          Brands ▼
-        </button>
-        {isDropdownOpen && (
-          <div className="brand-menu">
-            {brands.length > 0 ? (
-              brands.map((brand, index) => (
-                <div key={index} className="brand-item" onClick={() => handleBrandClick(brand)}>
-                  {brand}
-                </div>
-              ))
-            ) : (
-              <p>Loading brands...</p>
+          <div className="brand-dropdown">
+            <button 
+              className="brand-button" 
+              onClick={toggleDropdown}
+              aria-expanded={isDropdownOpen}
+              aria-haspopup="true"
+            >
+              Brands <span className={`dropdown-arrow ${isDropdownOpen ? 'open' : ''}`}>▼</span>
+            </button>
+            {isDropdownOpen && (
+              <div className="brand-menu">
+                {brands.length > 0 ? (
+                  brands
+                    .filter(brand => brand !== 'opi')
+                    .map((brand, index) => (
+                      <button 
+                        key={index} 
+                        className="brand-item" 
+                        onClick={() => handleBrandClick(brand)}
+                      >
+                        {brand}
+                      </button>
+                    ))
+                ) : (
+                  <div className="brand-item loading">Loading brands...</div>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
-
-        <div className="search-bar-container">
-          <input
-            type="text"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            placeholder="Search for products"
-            className="search-input"
-          />
-          <button onClick={handleSearch} className="search-button">
-            Search
-          </button>
         </div>
 
-        <div className="navbar-links">
-          <a href="/cart">Cart</a>
+        <form onSubmit={handleSearch} className="search-container">
+          <div className="search-bar">
+            <input
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="Search for products..."
+              className="search-input"
+              aria-label="Search products"
+            />
+            <button type="submit" className="search-button">
+              <svg xmlns="http://www.w3.org/2000/svg" className="search-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <div className="navbar-right">
+          <a href="/cart" className="cart-link">
+            <img src={cartIcon} alt="Cart" className="nav-icon" />
+            <span className="cart-text">Cart</span>
+          </a>
+          
           {userEmail ? (
-            <div className="user-info">
-              <div className="user-icon">{initial}</div>
-              <button onClick={handleLogout} className="logout-button">Logout</button>
+            <div className="user-dropdown">
+              <button className="user-profile" onClick={toggleDropdown}>
+                <div className="user-avatar">{initial}</div>
+                <span className="user-name">{displayName}</span>
+              </button>
+              {isDropdownOpen && (
+                <div className="user-menu">
+                  <button onClick={handleLogout} className="logout-button">
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
-            <a href="/account">Account</a>
+            <a href="/account" className="account-link">Sign In</a>
           )}
         </div>
       </nav>
-    </div>
+    </header>
   );
 };
 

@@ -15,17 +15,25 @@
     padding: 15px;
     text-align: center;
     transition: transform 0.3s ease-in-out;
+    
   }
   
   .product-card:hover {
     transform: scale(1.05);
   }
-  
+  .product-image-x {
+    width: 100px;
+    height: 100px; /* Fixed height for consistency */
+    object-fit: cover; /* Ensures images don't stretch */
+    border-radius: 10px;
+    border:1px solid black;
+    padding: 45px;
+    margin-left: 100px;
+  }
   /* Product Image */
   .product-image {
-    width: 100%;
     height: 200px; /* Fixed height for consistency */
-    object-fit: cover; /* Ensures images don't stretch */
+    object-fit: contain; /* Ensures images don't stretch */
     border-radius: 10px;
   }
   

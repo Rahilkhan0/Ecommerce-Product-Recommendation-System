@@ -1,29 +1,36 @@
-// src/components/Search.js
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom'; 
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Search.css';
+import Products from './Products';
 
-const Search = () => {
+const Search = ({ cart, setCart, handleAddToCart }) => {
   const [searchParams] = useSearchParams();
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  
   const productName = searchParams.get('query');
   const navigate = useNavigate();
 
-  const getValidImageUrl = (imageUrl) => {
-    const imageUrls = imageUrl.split('|').map(url => url.trim());
-    for (const url of imageUrls) {
-      if (url) return url; 
+  // Store last searched product with additional details
+  const storeLastSearchedProduct = (productName, results) => {
+    if (productName && results?.length > 0) {
+      const lastProduct = {
+        name: productName,
+        timestamp: new Date().toISOString(),
+        relatedProducts: results.slice(0, 3).map(p => p.Name)
+      };
+      localStorage.setItem('lastSearchedProduct', JSON.stringify(lastProduct));
     }
-    return 'https://via.placeholder.com/150'; 
+  };
+
+  const getValidImageUrl = (imageUrl) => {
+    const urls = imageUrl?.split('|').map(url => url.trim()).filter(Boolean);
+    return urls?.[0] || 'https://via.placeholder.com/150';
   };
 
   const handleCardClick = (product) => {
-    console.log(product);
-    // Navigate to product detail page and pass product data
     navigate(`/product-detail?query=${product.Name}`, { state: { product } });
   };
 
@@ -33,45 +40,37 @@ const Search = () => {
       setLoading(true);
       setError('');
       try {
-        const { data } = await axios.get(`http://localhost:5000/content-recommendation?item_name=${productName}`);
-        setRecommendations(data);
-      } catch (error) {
+        const response = await axios.get(`http://localhost:5000/content-recommendation`, {
+          params: { item_name: productName }
+        });
+        setRecommendations(response.data);
+        storeLastSearchedProduct(productName, response.data);
+      } catch (err) {
+        console.error(err);
         setError('Failed to fetch recommendations. Please try again.');
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchRecommendations();
   }, [productName]);
 
   return (
     <div className="search-container">
       <h1>Search Results for "{productName}"</h1>
-      
-      {loading && <p>Loading...</p>}
-      {error && <p className="error">{error}</p>}
-      {recommendations.length === 0 && !loading && !error && (
-        <p>No recommendations found</p>
+
+      {loading && <div className="loading-spinner"></div>}
+      {error && <p className="error-message">{error}</p>}
+      {!loading && !error && recommendations.length === 0 && (
+        <p className="no-results">No recommendations found.</p>
       )}
-      <div className="recommendation-container">
-        {recommendations.map((rec) => (
-          <div key={rec.ID} className="recommendation-card" onClick={() => handleCardClick(rec)}>
-            <img 
-              src={getValidImageUrl(rec.ImageURL)} 
-              alt={rec.Name} 
-              className="product-image" 
-            />
-            <div className="product-info">
-              <h2>{rec.Name}</h2>
-              <p>{rec.Brand}</p>
-              <p>Rating: {rec.Rating} ⭐</p>
-              <p>{rec.ReviewCount} reviews</p>
-              <button className="add-to-cart-button">Add to Cart</button>
-            </div>
-          </div>
-        ))}
-      </div>
+
+      <Products
+        items={recommendations}
+        handleAddToCart={handleAddToCart}
+        handleClick={handleCardClick}
+      />
     </div>
   );
 };

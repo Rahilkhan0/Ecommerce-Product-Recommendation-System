@@ -1,7 +1,8 @@
  
 import React, { useState, useEffect } from "react";
+import Products from "./Products";
 
-const Brand = () => {
+const Brand = ({cart, setCart, handleAddToCart}) => {
     const [brands, setBrands] = useState([]);
     const [selectedBrand, setSelectedBrand] = useState("");
     const [products, setProducts] = useState([]);
@@ -16,12 +17,15 @@ const Brand = () => {
 
     const handleBrandChange = (event) => {
         const brand = event.target.value;
+        console.log(brand)
         setSelectedBrand(brand);
 
         // Fetch products based on selected brand
         fetch(`http://127.0.0.1:5000/products/brand?brand=${brand}`)
             .then((response) => response.json())
-            .then((data) => setProducts(data))
+            .then((data) => {
+                console.log(data)
+                setProducts(data)})
             .catch((error) => console.error("Error fetching products:", error));
     };
 
@@ -41,14 +45,7 @@ const Brand = () => {
 
             <div className="products-list">
                 {products.length > 0 ? (
-                    products.map((product, index) => (
-                        <div key={index} className="product-card">
-                            <img src={product.ImageURL} alt={product.Name} />
-                            <h3>{product.Name}</h3>
-                            <p>Rating: {product.Rating}</p>
-                            <p>Category: {product.Category}</p>
-                        </div>
-                    ))
+                    <Products items={products} handleAddToCart={handleAddToCart} handleClick={()=>{}}/>
                 ) : (
                     <p>No products found for this brand.</p>
                 )}

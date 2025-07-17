@@ -1,0 +1,30 @@
+.admin-dashboard {
+    padding: 20px;
+  }
+  
+  .product-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .product-card {
+    width: 200px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .product-card img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .brand-list {
+    margin-top: 20px;
+    list-style: none;
+    padding-left: 0;
+  }
+  
