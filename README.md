@@ -13,25 +13,21 @@ This is a full-stack **Ecommerce Product Recommendation System** that recommends
   - Content-based filtering (based on product description & category)
   - Collaborative filtering (based on user-item interactions)
   - Hybrid recommendations
-- 🧠 Emotion and sentiment-based voice separator (optional ML feature)
-- 🧾 Add to cart, view details, and purchase simulation
-- 📊 Admin dashboard (optional)
-
----
+ 
+- 🧾 Add to cart, view details,etc
 
 ## 🛠️ Tech Stack
 
 ### Frontend
 - React.js
-- React Router
 - Axios
-- Tailwind CSS (optional)
-- React Scripts
+- Tailwind CSS 
+
 
 ### Backend
 - Flask (Python)
 - Flask-CORS
-- MongoDB (via PyMongo)
+- MongoDB 
 
 ### Machine Learning
 - scikit-learn
