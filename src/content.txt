@@ -1,0 +1,63 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import './App.css';
+
+const App = () => {
+  const [productName, setProductName] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchRecommendations = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await axios.get(`http://localhost:5000/content-recommendation?item_name=${productName}`);
+      setRecommendations(data);
+    } catch (error) {
+      setError('Failed to fetch recommendations. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  return (
+    <div className="App">
+      <h1>Product Recommendations</h1>
+      <input
+        type="text"
+        value={productName}
+        onChange={(e) => setProductName(e.target.value)}
+        placeholder="Enter product name"
+        className="input-field"
+      />
+      <button onClick={fetchRecommendations} disabled={loading || !productName}>
+        {loading ? 'Loading...' : 'Get Recommendations'}
+      </button>
+      
+      {error && <p className="error">{error}</p>}
+      
+      {recommendations.length === 0 && !loading && !error && (
+        <p>No recommendations found</p>
+      )}
+
+      <div className="recommendation-container">
+        {recommendations.map((rec) => (
+          <div key={rec.Name} className="recommendation-card">
+            <img src={rec.ImageURL} alt={rec.Name} className="product-image" />
+            <div className="product-info">
+              <h2>{rec.Name}</h2>
+              <p>{rec.Brand}</p>
+              <p>Rating: {rec.Rating} ⭐</p>
+              <p>{rec.ReviewCount} reviews</p>
+              <button className="add-to-cart-button">Add to Cart</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default App;
