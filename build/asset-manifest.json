@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Ecommerce-Product-Recommendation-System/static/css/main.00192d82.css",
+    "main.js": "/Ecommerce-Product-Recommendation-System/static/js/main.59124c1f.js",
+    "index.html": "/Ecommerce-Product-Recommendation-System/index.html",
+    "main.00192d82.css.map": "/Ecommerce-Product-Recommendation-System/static/css/main.00192d82.css.map",
+    "main.59124c1f.js.map": "/Ecommerce-Product-Recommendation-System/static/js/main.59124c1f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.00192d82.css",
+    "static/js/main.59124c1f.js"
+  ]
+}

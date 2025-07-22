@@ -1,5 +1,5 @@
-{"homepage": "https://Rahilkhan0.github.io/Ecommerce-Product-Recommendation-System",
-
+{
+  "homepage": "https://Rahilkhan0.github.io/Ecommerce-Product-Recommendation-System",
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -14,13 +14,16 @@
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-     "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -40,8 +43,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000",
-  "devDependencies": {
-    "tailwindcss": "^3.4.17"
-  }
+  "proxy": "http://localhost:5000"
 }

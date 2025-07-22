@@ -1,0 +1,43 @@
+// src/components/ProductDetail.js
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import './ProductDetail.css';
+
+const ProductDetail = () => {
+  const location = useLocation();
+  const { product } = location.state || {}; // Get the product passed via state
+
+  if (!product) {
+    return <p>Product not found</p>;
+  }
+
+  return (
+    <div className="product-detail-container">
+      <div className="product-detail">
+       <div className='image'>
+        <img 
+          src={product.ImageURL} 
+          alt={product.Name} 
+          className="product-detail-image" 
+        />
+         <button className="btn" id="addtoCart">Add to Cart</button>
+         <button className="btn" id='buyNow'> Buy Now</button>
+        
+        </div>
+        
+        <div className="product-detail-info">
+             
+          <h2>{product.Name}</h2>
+          <p>{product.Brand}</p>
+          <p>Rating: {product.Rating} ⭐</p>
+          <p>{product.ReviewCount} reviews</p>
+          <p>{product.Description}</p>
+           
+           
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetail;

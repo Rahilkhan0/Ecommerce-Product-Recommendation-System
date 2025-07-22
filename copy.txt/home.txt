@@ -1,0 +1,193 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './Home.css';  // Create CSS for styling the product cards
+
+const Home = () => {
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const getValidImageUrl = (imageUrl) => {
+    const imageUrls = imageUrl.split('|').map(url => url.trim()); // Split and trim
+    for (const url of imageUrls) {
+      if (url) return url; // Return the first valid URL
+    }
+    return 'https://via.placeholder.com/150'; // Fallback
+  };
+
+  useEffect(() => {
+    const fetchCollaborativeRecommendations = async () => {
+      const userId = localStorage.getItem('user_id'); // Get the user_id from localStorage
+      if(!userId) return;
+
+      setLoading(true);
+      setError('');
+
+      try {
+        const { data } = await axios.get(`http://localhost:5000/recommendations?user_id=${userId}`);
+        
+        // Filter out products with a rating of 0.0
+        const filteredRecommendations = data.filter(rec => rec.Rating > 0.0);
+        
+        setRecommendations(filteredRecommendations);
+      } catch (error) {
+        setError('Failed to fetch recommendations. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCollaborativeRecommendations();
+  }, []);
+
+  return (
+    <div className="home-container">
+      <h1>Recommended Products for You</h1>
+      
+      {loading && <p>Loading...</p>}
+      {error && <p className="error">{error}</p>}
+      {recommendations.length === 0 && !loading && !error && (
+        <p>No recommendations found</p>
+      )}
+      <div className="recommendation-container">
+        {recommendations.map((rec) => (
+          <div key={rec.Name} className="recommendation-card">
+            <img 
+              src={getValidImageUrl(rec.ImageURL)} // Validate and display the correct image
+              alt={rec.Name} 
+              className="product-image" 
+            />
+            <div className="product-info">
+              <h2>{rec.Name}</h2>
+              <p>{rec.Brand}</p>
+              <p>Rating: {rec.Rating} ⭐</p>
+              <p>{rec.ReviewCount} reviews</p>
+              <button 
+                className="add-to-cart-button" 
+                 // Add product to cart
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+
+app.jss
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import Cart from './components/Cart';
+import SignIn from './components/SignIn';
+import Login from './components/Login';
+import Account from './components/Account';
+import Search from './components/Search'; // Assuming you have this component
+
+const App = () => {
+  const [userEmail, setUserEmail] = useState(null); // State for user's email
+
+  const handleLogin = (email) => {
+    setUserEmail(email); // Update user email on login
+  };
+
+  const handleLogout = () => {
+    setUserEmail(null); // Clear user email on logout
+  };
+
+  return (
+    <Router>
+      <Navbar userEmail={userEmail} handleLogout={handleLogout} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/signin" element={<SignIn handleLogin={handleLogin} />} />
+        <Route path="/login" element={<Login handleLogin={handleLogin} />} />
+        <Route path="/account" element={<Account handleLogin={handleLogin} />} />
+        <Route path="/search" element={<Search />} /> {/* Make sure this route exists */}
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
+ 
+
+ search.js 
+ import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom'; // Hook to read query params
+import axios from 'axios';
+import './Search.css';
+
+const Search = () => {
+  const [searchParams] = useSearchParams();
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const productName = searchParams.get('query'); // Get the search query
+
+  const getValidImageUrl = (imageUrl) => {
+    const imageUrls = imageUrl.split('|').map(url => url.trim()); // Split and trim
+    for (const url of imageUrls) {
+      if (url) return url; // Return the first valid URL
+    }
+    return 'https://via.placeholder.com/150'; // Fallback
+  };
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!productName) return;
+      setLoading(true);
+      setError('');
+      try {
+        const { data } = await axios.get(`http://localhost:5000/content-recommendation?item_name=${productName}`);
+        setRecommendations(data);
+      } catch (error) {
+        setError('Failed to fetch recommendations. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRecommendations();
+  }, [productName]);
+
+  return (
+    <div className="search-container">
+      <h1>Search Results for "{productName}"</h1>
+      
+      {loading && <p>Loading...</p>}
+      {error && <p className="error">{error}</p>}
+      {recommendations.length === 0 && !loading && !error && (
+        <p>No recommendations found</p>
+      )}
+      <div className="recommendation-container">
+        {recommendations.map((rec) => (
+          <div key={rec.Name} className="recommendation-card">
+            <img 
+              src={getValidImageUrl(rec.ImageURL)} // Validate and display the correct image
+              alt={rec.Name} 
+              className="product-image" 
+            />
+            <div className="product-info">
+              <h2>{rec.Name}</h2>
+              <p>{rec.Brand}</p>
+              <p>Rating: {rec.Rating} ⭐</p>
+              <p>{rec.ReviewCount} reviews</p>
+              <button className="add-to-cart-button">Add to Cart</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Search;

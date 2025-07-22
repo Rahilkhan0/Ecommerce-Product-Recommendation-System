@@ -1,0 +1,197 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import './Home.css';
+import Products from './Products';
+
+const Home = ({ cart, setCart, handleAddToCart }) => {
+  const [recommendations, setRecommendations] = useState([]);
+  const [topRated, setTopRated] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [hybridRecommendations, setHybridRecommendations] = useState([]);
+  const [loading, setLoading] = useState({
+    main: false,
+    hybrid: false
+  });
+  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
+  const [hybridSource, setHybridSource] = useState('');
+
+  const navigate = useNavigate();
+  const userId = localStorage.getItem("user_id");
+
+  // Get last searched product with fallbacks
+  const getRecommendationSource = () => {
+    try {
+      const lastSearch = JSON.parse(localStorage.getItem('lastSearchedProduct'));
+      if (lastSearch?.name) {
+        return {
+          type: 'last_search',
+          value: lastSearch.name,
+          description: `Based on your last search for "${lastSearch.name}"`
+        };
+      }
+    } catch (e) {
+      console.error("Error parsing last search:", e);
+    }
+
+    if (recommendations.length > 0) {
+      return {
+        type: 'recommendation',
+        value: recommendations[0].Name,
+        description: `Based on recommended product "${recommendations[0].Name}"`
+      };
+    }
+
+    return {
+      type: 'default',
+      value: "shampoo",
+      description: "Based on popular products"
+    };
+  };
+
+  const fetchRelatedProducts = async () => {
+    try {
+      if (!userId) return;
+      const response = await fetch(`http://localhost:5000/recommend-by-brand?user_id=${userId}`);
+      const data = await response.json();
+      if (response.ok) {
+        setRelatedProducts(data?.slice(0, 15) || []);
+      }
+    } catch (error) {
+      console.error("Error fetching related products:", error);
+    }
+  };
+
+  const fetchCollaborativeRecommendations = async () => {
+    try {
+      if (!userId) return;
+      setLoading(prev => ({...prev, main: true}));
+      const { data } = await axios.get(`http://localhost:5000/recommendations?user_id=${userId}`);
+      setRecommendations(data.filter(rec => rec.Rating > 0.0));
+    } catch (error) {
+      setError('Failed to fetch recommendations.');
+    } finally {
+      setLoading(prev => ({...prev, main: false}));
+    }
+  };
+
+  const fetchTopRatedProducts = async () => {
+    try {
+      setLoading(prev => ({...prev, main: true}));
+      const { data } = await axios.get('http://localhost:5000/rating-recommendation');
+      setTopRated(data);
+    } catch (error) {
+      setError('Failed to fetch top-rated products.');
+    } finally {
+      setLoading(prev => ({...prev, main: false}));
+    }
+  };
+
+  const fetchHybridRecommendations = async () => {
+    try {
+      if (!userId) return;
+      setLoading(prev => ({...prev, hybrid: true}));
+      
+      const source = getRecommendationSource();
+      setHybridSource(source.description);
+      
+      const { data } = await axios.get(
+        `http://localhost:5000/hybrid-recommendation?user_id=${userId}&item_name=${source.value}`
+      );
+      setHybridRecommendations(data.hybrid || []);
+    } catch (error) {
+      console.error("Error fetching hybrid recommendations:", error);
+      setError('Failed to load hybrid recommendations.');
+    } finally {
+      setLoading(prev => ({...prev, hybrid: false}));
+    }
+  };
+
+  const fetchCart = async () => {
+    try {
+      if (!userId) return;
+      const response = await fetch(`http://localhost:5000/get_cart?user_id=${userId}`);
+      const data = await response.json();
+      if (response.ok) {
+        setCart(data.cart);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRelatedProducts();
+    fetchCollaborativeRecommendations();
+    fetchTopRatedProducts();
+    fetchCart();
+  }, [userId]);
+
+  useEffect(() => {
+    if (recommendations.length > 0) {
+      fetchHybridRecommendations();
+    }
+  }, [recommendations]);
+
+  const handleCardClick = (product) => {
+    navigate(`/product-detail?query=${product.Name}`, { state: { product } });
+  };
+
+  const renderProducts = () => {
+    switch (activeTab) {
+      case 0:
+        return <Products items={recommendations} handleAddToCart={handleAddToCart} handleClick={handleCardClick} />;
+      case 1:
+        return <Products items={relatedProducts} handleAddToCart={handleAddToCart} handleClick={handleCardClick} />;
+      case 2:
+        return <Products items={topRated} handleAddToCart={handleAddToCart} handleClick={handleCardClick} />;
+      case 3:
+        return (
+          <div className="hybrid-recommendations">
+            <p className="hybrid-source">{hybridSource}</p>
+            <Products items={hybridRecommendations} handleAddToCart={handleAddToCart} handleClick={handleCardClick} />
+          </div>
+        );
+      default:
+        return <Products items={recommendations} handleAddToCart={handleAddToCart} handleClick={handleCardClick} />;
+    }
+  };
+
+  return (
+    <div className="home-container">
+      <div className="home-header">
+        <h1>Discover Products</h1>
+        <p>Personalized recommendations just for you</p>
+      </div>
+
+      <div className="recommendation-tabs">
+        {['Recommended', 'Related to You', 'Top Rated', 'Hybrid'].map((tab, index) => (
+          <button
+            key={index}
+            className={`tab-button ${activeTab === index ? 'active' : ''}`}
+            onClick={() => setActiveTab(index)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {loading.main || loading.hybrid ? (
+        <div className="loading-container">
+          <div className="spinner"></div>
+        </div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
+      ) : (
+        renderProducts()
+      )}
+
+      <footer className="app-footer">
+        {/* Footer content */}
+      </footer>
+    </div>
+  );
+};
+
+export default Home;
