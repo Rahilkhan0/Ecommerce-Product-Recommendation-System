@@ -2,7 +2,8 @@
 
 This is a full-stack **Ecommerce Product Recommendation System** that recommends products to users using a **hybrid approach** (content-based + collaborative filtering). Built with **React.js**, **Flask**, and **MongoDB**, the system offers personalized product recommendations based on user interactions, product descriptions, and ratings.
 
-![Homepage](./src/images/Recommendationsystem.png)
+![Recommendation System Screenshot](frontend/public/images/Recommendationsystem.png)
+
 
 ## 🚀 Features
 
